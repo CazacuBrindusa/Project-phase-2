@@ -2163,38 +2163,6 @@ ifstream& operator >> (ifstream& fin, Payment& p)
 }
 
 
-/*
-//int main de test
-int main()
-{
-    /*
-    Event s;
-    cin >> s;
-    cout << s;
-    cout << "\n\n\n\n\n\n\n\n\n\n\n";
-    s.locuri_libere(); // nu merge pt ultima poz din D
-    */
-    /*
-    vector <Payment> l;
-    Payment p;
-    for (int i = 0; i < 3; i++)
-    {
-        cin >> p;
-        l.push_back(p);
-    }
-    for (int i = 0; i < 3; i++)
-    {
-        cout << l[i] << "\n";
-    }
-    //nu merge bine la const si static are ca id: 3 4 2
-    
-
-
-
-    return 0;
-}
-*/
-
 int main()
 {
     bool stop = false;
