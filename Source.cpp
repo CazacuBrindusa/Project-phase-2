@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+u#define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
 #include <fstream>
@@ -11,7 +11,9 @@
 #include <windows.h>
 #include <winnt.h>
 
+
 using namespace std;
+
 
 class IOInterface
 {
