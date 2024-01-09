@@ -1,4 +1,4 @@
-u#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
 #include <fstream>
@@ -11,9 +11,10 @@ u#define _CRT_SECURE_NO_WARNINGS
 #include <windows.h>
 #include <winnt.h>
 
-
 using namespace std;
 
+
+ifstream fin("Date.in");
 
 class IOInterface
 {
@@ -97,7 +98,7 @@ public:
             if (status == 'R' || status == 'r')
                 this->status = 'r';
             else
-                if (status == 's' || status == 's')
+                if (status == 'S' || status == 's')
                     this->status = 's';
                  else
                         functieExceptii(4);
@@ -413,19 +414,19 @@ public:
     }
     TicketRezervate(const TicketRezervate& t)
     {
-        this->nume_event = nume_event;
-        this->zona = zona;
-        this->seat_nr = seat_nr;
-        this->price = price;
+        this->nume_event = t.nume_event;
+        this->zona = t.zona;
+        this->seat_nr = t.seat_nr;
+        this->price = t.price;
     }
     TicketRezervate operator =(const TicketRezervate& t)
     {
         if (this != &t)
         {
-            this->nume_event = nume_event;
-            this->zona = zona;
-            this->seat_nr = seat_nr;
-            this->price = price;
+            this->nume_event = t.nume_event;
+            this->zona = t.zona;
+            this->seat_nr = t.seat_nr;
+            this->price = t.price;
         }
         return *this;
     }
@@ -1188,24 +1189,24 @@ public:
     char getstatus(string z, int l)
     {
         if (z == "A")
-            return this->listaPreturi[l].getstatus();
+            return this->listaPreturi[l-1].getstatus();
         if (z == "B")
-            return this->listaPreturi[l_a * L_a + l].getstatus();
+            return this->listaPreturi[l_a * L_a + l-1].getstatus();
         if (z == "C")
-            return this->listaPreturi[l_a * L_a + l_b * L_b + l].getstatus();
+            return this->listaPreturi[l_a * L_a + l_b * L_b + l-1].getstatus();
         if (z == "D")
-            return this->listaPreturi[l_a * L_a + 2 * l_b * L_b + l].getstatus();
+            return this->listaPreturi[l_a * L_a + 2 * l_b * L_b + l-1].getstatus();
     }
     double getprice(string z, int l)
     {
         if (z == "A")
-            return this->listaPreturi[l].getprice();
+            return this->listaPreturi[l-1].getprice();
         if (z == "B")
-            return this->listaPreturi[l_a * L_a + l].getprice();
+            return this->listaPreturi[l_a * L_a + l-1].getprice();
         if (z == "C")
-            return this->listaPreturi[l_a * L_a + l_b * L_b + l].getprice();
+            return this->listaPreturi[l_a * L_a + l_b * L_b + l-1].getprice();
         if (z == "D")
-            return this->listaPreturi[l_a * L_a + 2 * l_b * L_b + l].getprice();
+            return this->listaPreturi[l_a * L_a + 2 * l_b * L_b + l-1].getprice();
     }
 
     void setevent_id(int event_id) 
@@ -1246,13 +1247,13 @@ public:
     void setstatus(string z, int l, char s)
     {
         if (z == "A")
-            this->listaPreturi[l].setstatus(s);
+            this->listaPreturi[l-1].setstatus(s);
         if (z == "B")
-            this->listaPreturi[l_a * L_a + l].setstatus(s);
+            this->listaPreturi[l_a * L_a + l-1].setstatus(s);
         if (z == "C")
-            this->listaPreturi[l_a * L_a + l_b * L_b + l].setstatus(s);
+            this->listaPreturi[l_a * L_a + l_b * L_b + l-1].setstatus(s);
         if (z == "D")
-            this->listaPreturi[l_a * L_a + 2 * l_b * L_b + l].setstatus(s);
+            this->listaPreturi[l_a * L_a + 2 * l_b * L_b + l-1].setstatus(s);
     }
 
     Event();
@@ -1425,84 +1426,82 @@ public:
                 in >> p;
                 if (in.fail())
                 {
-                    throw runtime_error("Pretul nu este corecta. Alegeti o valoare intreaga.\n");
+                    throw runtime_error("Pretul nu este corect. Alegeti o valoare intreaga.\n");
                 }
-                if (p > 0)
+                if (p <= 0) functieExceptii(0);
+
+                for (int i = l_a; i >= 0; i = i - 2)
                 {
-                    for (int i = l_a; i >= 0; i = i - 2)
+                    for (int j = L_a * i; j > L_a * (i - 2) && j>0; j--)
                     {
-                        for (int j = L_a * i; j > L_a * (i - 2) && j>0; j--)
-                        {
-                            Ticket aux1((string)"A", j, p, 'a');
-                            this->listaPreturi.push_back(aux1);
-                        }
-                        p = p + 10;
+                        Ticket aux1((string)"A", j, p, 'a');
+                        this->listaPreturi.push_back(aux1);
                     }
-                    for (int i = 0; i < l_a * L_a - 1; i++)
-                        for (int j = i; j < l_a * L_a; j++)
-                            if (this->listaPreturi[i].getseat_nr() > this->listaPreturi[j].getseat_nr())
-                            {
-                                Ticket aux1(this->listaPreturi[i]);
-                                this->listaPreturi[i] = this->listaPreturi[j];
-                                this->listaPreturi[j] = aux1;
-                            }
-                    int la = L_a * l_a;
-                    int lb = L_b * l_b;
-                    int ld = L_a * L_b;
-                    for (int i = l_b; i >= 0; i = i - 2)
-                    {
-                        for (int j = L_b * i; j > L_b * (i - 2) && j > 0; j--)
-                        {
-                            Ticket aux2((string)"B", j, p, 'a');
-                            this->listaPreturi.push_back(aux2);
-                        }
-                        p = p + 10;
-                    }
-                    for (int i = la; i < la+lb-1; i++)
-                        for (int j = i; j < la+lb; j++)
-                            if (this->listaPreturi[i].getseat_nr() > this->listaPreturi[j].getseat_nr())
-                            {
-                                Ticket aux1(this->listaPreturi[i]);
-                                this->listaPreturi[i] = this->listaPreturi[j];
-                                this->listaPreturi[j] = aux1;
-                            }
-                    for (int i = l_b; i >0; i = i - 2)
-                    {
-                        for (int j = L_b * i; j > L_b * (i - 2) && j > 0; j--)
-                        {
-                            Ticket aux3((string)"C", j, p, 'a');
-                            this->listaPreturi.push_back(aux3);
-                        }
-                        p = p + 10;
-                    }
-                    for (int i = la+lb; i < la+lb+lb - 1; i++)
-                        for (int j = i; j < la+lb+lb; j++)
-                            if (this->listaPreturi[i].getseat_nr() > this->listaPreturi[j].getseat_nr())
-                            {
-                                Ticket aux1(this->listaPreturi[i]);
-                                this->listaPreturi[i] = this->listaPreturi[j];
-                                this->listaPreturi[j] = aux1;
-                            }
-                    for (int i = L_b; i >= 0; i = i - 2)
-                    {
-                        for (int j = L_a * i; j > L_a * (i - 2) && j > 0; j--)
-                        {
-                            Ticket aux4((string)"D", j, p, 'a');
-                            this->listaPreturi.push_back(aux4);
-                        }
-                        p = p + 10;
-                    }
-                    for (int i = la + lb + lb; i < la + lb + ld + lb - 1; i++)
-                        for (int j = i; j < la + lb + lb + ld; j++)
-                            if (this->listaPreturi[i].getseat_nr() > this->listaPreturi[j].getseat_nr())
-                            {
-                                Ticket aux1(this->listaPreturi[i]);
-                                this->listaPreturi[i] = this->listaPreturi[j];
-                                this->listaPreturi[j] = aux1;
-                            }
+                    p = p + 10;
                 }
-                else
-                    functieExceptii(0);
+                for (int i = 0; i < l_a * L_a - 1; i++)
+                    for (int j = i; j < l_a * L_a; j++)
+                        if (this->listaPreturi[i].getseat_nr() > this->listaPreturi[j].getseat_nr())
+                        {
+                            Ticket aux1(this->listaPreturi[i]);
+                            this->listaPreturi[i] = this->listaPreturi[j];
+                            this->listaPreturi[j] = aux1;
+                        }
+                int la = L_a * l_a;
+                int lb = L_b * l_b;
+                int ld = L_a * L_b;
+                for (int i = l_b; i >= 0; i = i - 2)
+                {
+                    for (int j = L_b * i; j > L_b * (i - 2) && j > 0; j--)
+                    {
+                        Ticket aux2((string)"B", j, p, 'a');
+                        this->listaPreturi.push_back(aux2);
+                    }
+                    p = p + 10;
+                }
+                for (int i = la; i < la+lb-1; i++)
+                    for (int j = i; j < la+lb; j++)
+                        if (this->listaPreturi[i].getseat_nr() > this->listaPreturi[j].getseat_nr())
+                        {
+                            Ticket aux1(this->listaPreturi[i]);
+                            this->listaPreturi[i] = this->listaPreturi[j];
+                            this->listaPreturi[j] = aux1;
+                        }
+                for (int i = l_b; i >0; i = i - 2)
+                {
+                    for (int j = L_b * i; j > L_b * (i - 2) && j > 0; j--)
+                    {
+                        Ticket aux3((string)"C", j, p, 'a');
+                        this->listaPreturi.push_back(aux3);
+                    }
+                    p = p + 10;
+                }
+                for (int i = la+lb; i < la+lb+lb - 1; i++)
+                    for (int j = i; j < la+lb+lb; j++)
+                        if (this->listaPreturi[i].getseat_nr() > this->listaPreturi[j].getseat_nr())
+                        {
+                            Ticket aux1(this->listaPreturi[i]);
+                            this->listaPreturi[i] = this->listaPreturi[j];
+                            this->listaPreturi[j] = aux1;
+                        }
+                for (int i = L_b; i >= 0; i = i - 2)
+                {
+                    for (int j = L_a * i; j > L_a * (i - 2) && j > 0; j--)
+                    {
+                        Ticket aux4((string)"D", j, p, 'a');
+                        this->listaPreturi.push_back(aux4);
+                    }
+                    p = p + 10;
+                }
+                for (int i = la + lb + lb; i < la + lb + ld + lb - 1; i++)
+                    for (int j = i; j < la + lb + lb + ld; j++)
+                        if (this->listaPreturi[i].getseat_nr() > this->listaPreturi[j].getseat_nr())
+                        {
+                            Ticket aux1(this->listaPreturi[i]);
+                            this->listaPreturi[i] = this->listaPreturi[j];
+                            this->listaPreturi[j] = aux1;
+                        }
+                    
                 break;
 
             }
@@ -1528,6 +1527,80 @@ public:
         fin >> this->data;
         fin >> this->timp;
         fin >> this->category;
+        int p;
+        fin >> p;
+
+        for (int i = l_a; i >= 0; i = i - 2)
+        {
+            for (int j = L_a * i; j > L_a * (i - 2) && j > 0; j--)
+            {
+                Ticket aux1((string)"A", j, p, 'a');
+                this->listaPreturi.push_back(aux1);
+            }
+            p = p + 10;
+        }
+        for (int i = 0; i < l_a * L_a - 1; i++)
+            for (int j = i; j < l_a * L_a; j++)
+                if (this->listaPreturi[i].getseat_nr() > this->listaPreturi[j].getseat_nr())
+                {
+                    Ticket aux1(this->listaPreturi[i]);
+                    this->listaPreturi[i] = this->listaPreturi[j];
+                    this->listaPreturi[j] = aux1;
+                }
+        int la = L_a * l_a;
+        int lb = L_b * l_b;
+        int ld = L_a * L_b;
+        for (int i = l_b; i >= 0; i = i - 2)
+        {
+            for (int j = L_b * i; j > L_b * (i - 2) && j > 0; j--)
+            {
+                Ticket aux2((string)"B", j, p, 'a');
+                this->listaPreturi.push_back(aux2);
+            }
+            p = p + 10;
+        }
+        for (int i = la; i < la + lb - 1; i++)
+            for (int j = i; j < la + lb; j++)
+                if (this->listaPreturi[i].getseat_nr() > this->listaPreturi[j].getseat_nr())
+                {
+                    Ticket aux1(this->listaPreturi[i]);
+                    this->listaPreturi[i] = this->listaPreturi[j];
+                    this->listaPreturi[j] = aux1;
+                }
+        for (int i = l_b; i > 0; i = i - 2)
+        {
+            for (int j = L_b * i; j > L_b * (i - 2) && j > 0; j--)
+            {
+                Ticket aux3((string)"C", j, p, 'a');
+                this->listaPreturi.push_back(aux3);
+            }
+            p = p + 10;
+        }
+        for (int i = la + lb; i < la + lb + lb - 1; i++)
+            for (int j = i; j < la + lb + lb; j++)
+                if (this->listaPreturi[i].getseat_nr() > this->listaPreturi[j].getseat_nr())
+                {
+                    Ticket aux1(this->listaPreturi[i]);
+                    this->listaPreturi[i] = this->listaPreturi[j];
+                    this->listaPreturi[j] = aux1;
+                }
+        for (int i = L_b; i >= 0; i = i - 2)
+        {
+            for (int j = L_a * i; j > L_a * (i - 2) && j > 0; j--)
+            {
+                Ticket aux4((string)"D", j, p, 'a');
+                this->listaPreturi.push_back(aux4);
+            }
+            p = p + 10;
+        }
+        for (int i = la + lb + lb; i < la + lb + ld + lb - 1; i++)
+            for (int j = i; j < la + lb + lb + ld; j++)
+                if (this->listaPreturi[i].getseat_nr() > this->listaPreturi[j].getseat_nr())
+                {
+                    Ticket aux1(this->listaPreturi[i]);
+                    this->listaPreturi[i] = this->listaPreturi[j];
+                    this->listaPreturi[j] = aux1;
+                }
         return fin;
     }
     friend ostream& operator << (ostream& out, const Event& e);
@@ -1538,8 +1611,6 @@ public:
         HANDLE consolehwnd = GetStdHandle(STD_OUTPUT_HANDLE);
         int i, j, k;
         //pt zona A
-        for (int i = 0; i < listaPreturi.size(); i++)
-            cout << listaPreturi[i] << "\n\n";
         int la = l_a * L_a;
         int lb = l_b * L_b;
         int ld = L_b * L_a;
@@ -1556,37 +1627,29 @@ public:
             for (k = 0; k < this->l_b; k++)
                 cout << "    ";
             cout << "    ";
-            for (j = (this->L_a * i + 1); j <= this->L_a * (i + 1); j++)
+            for (j = L_a * i; j < L_a * (i + 1); j++)
             {
                 SetConsoleTextAttribute(consolehwnd, 7);
                 cout << "|";
-                if (this->listaPreturi[j].getstatus() == 'a')
+                Ticket current = this->listaPreturi[j];
+
+                switch (current.getstatus())
                 {
+                case 'a':
                     SetConsoleTextAttribute(consolehwnd, FOREGROUND_GREEN);
-                    if (j >= 10)
-                        cout << "A" << j;
-                    else
-                        cout << "A" << j << " ";
+                    break;
+                case 'r':
+                    SetConsoleTextAttribute(consolehwnd, FOREGROUND_BLUE);
+                    break;
+                default:
+                    SetConsoleTextAttribute(consolehwnd, FOREGROUND_RED);
+                    break;
                 }
-                else
-                    if (this->listaPreturi[j].getstatus() == 'r')
-                    {
-                        SetConsoleTextAttribute(consolehwnd, FOREGROUND_BLUE);
-                        if (j >= 10)
-                            cout << "A" << j;
-                        else
-                            cout << "A" << j << " ";
-                    }
-                    else
-                    {
-                            SetConsoleTextAttribute(consolehwnd, FOREGROUND_RED);
-                            if (j >= 10)
-                                cout << "A" << j;
-                            else
-                                cout << "A" << j << " ";
-                    }
-                SetConsoleTextAttribute(consolehwnd, 7);
+                cout << "A" << current.getseat_nr();
+                if (current.getseat_nr() < 10)  
+                    cout << " ";
             }
+            SetConsoleTextAttribute(consolehwnd, 7);
             cout << "|\n";
         }
         SetConsoleTextAttribute(consolehwnd, 7);
@@ -1620,98 +1683,70 @@ public:
             {
                 SetConsoleTextAttribute(consolehwnd, 7);
                 cout << "|";
-                if (this->listaPreturi[la + j].getstatus() == 'a')
+                Ticket current = this->listaPreturi[la + j];
+
+                switch (current.getstatus())
                 {
+                case 'a':
                     SetConsoleTextAttribute(consolehwnd, FOREGROUND_GREEN);
-                    if (j >= 10)
-                        cout << "B" << j;
-                    else
-                        cout << "B" << j << " ";
+                    break;
+                case 'r':
+                    SetConsoleTextAttribute(consolehwnd, FOREGROUND_BLUE);
+                    break;
+                default:
+                    SetConsoleTextAttribute(consolehwnd, FOREGROUND_RED);
+                    break;
                 }
-                else
-                    if (this->listaPreturi[la + j].getstatus() == 'r')
-                    {
-                        SetConsoleTextAttribute(consolehwnd, FOREGROUND_BLUE);
-                        if (j >= 10)
-                            cout << "B" << j;
-                        else
-                            cout << "B" << j << " ";
-                    }
-                    else
-                    {
-                        SetConsoleTextAttribute(consolehwnd, FOREGROUND_RED);
-                        if (j >= 10)
-                            cout << "B" << j;
-                        else
-                            cout << "B" << j << " ";
-                    }
+                cout << "B" << current.getseat_nr();
+                if (current.getseat_nr() < 10)  cout << " ";
             }
             SetConsoleTextAttribute(consolehwnd, 7);
             cout << "|   ";
             //Pt D
-            for (j = L_a * (i - 1) + 1; j <= L_a * i; j++)
+            for (j = L_a * (i - 1); j < L_a * i; j++)
             {
                 SetConsoleTextAttribute(consolehwnd, 7);
                 cout << "|";
-                if (this->listaPreturi[la + lb + lb + j].getstatus() == 'a')
-                {
-                    SetConsoleTextAttribute(consolehwnd, FOREGROUND_GREEN);
-                    if (j >= 10)
-                        cout << "D" << j;
-                    else
-                        cout << "D" << j << " ";
-                }
-                else
-                    if (this->listaPreturi[la + lb + lb + j].getstatus() == 'r')
-                    {
-                        SetConsoleTextAttribute(consolehwnd, FOREGROUND_BLUE);
-                        if (j >= 10)
-                            cout << "D" << j;
-                        else
-                            cout << "D" << j << " ";
-                    }
-                    else
-                    {
-                        SetConsoleTextAttribute(consolehwnd, FOREGROUND_RED);
-                        if (j >= 10)
-                            cout << "D" << j;
-                        else
-                            cout << "D" << j << " ";
-                    }
+                Ticket current = this->listaPreturi[la + lb + lb + j];
 
+                switch (current.getstatus())
+                {
+                case 'a':
+                    SetConsoleTextAttribute(consolehwnd, FOREGROUND_GREEN);
+                    break;
+                case 'r':
+                    SetConsoleTextAttribute(consolehwnd, FOREGROUND_BLUE);
+                    break;
+                default:
+                    SetConsoleTextAttribute(consolehwnd, FOREGROUND_RED);
+                    break;
+                }
+                cout << "D" << current.getseat_nr();
+                if (current.getseat_nr() < 10)  cout << " ";
             }
             SetConsoleTextAttribute(consolehwnd, 7);
             cout << "|   ";
             //pt C
-            for (j = l_b * (i - 1) + 1; j <= l_b * i; j++)
+            for (j = l_b * (i - 1); j < l_b * i; j++)
             {
                 SetConsoleTextAttribute(consolehwnd, 7);
                 cout << "|";
-                if(this->listaPreturi[la+lb+j].getstatus()=='a')
+                Ticket current = this->listaPreturi[la + lb + j];
+
+                switch (current.getstatus())
                 {
+                case 'a':
                     SetConsoleTextAttribute(consolehwnd, FOREGROUND_GREEN);
-                    if (j >= 10)
-                        cout << "C" << j;
-                    else
-                        cout << "C" << j << " ";
+                    break;
+                case 'r':
+                    SetConsoleTextAttribute(consolehwnd, FOREGROUND_BLUE);
+                    break;
+                default:
+                    SetConsoleTextAttribute(consolehwnd, FOREGROUND_RED);
+                    break;
                 }
-                else
-                    if (this->listaPreturi[la + lb + j].getstatus() == 'r')
-                    {
-                        SetConsoleTextAttribute(consolehwnd, FOREGROUND_BLUE);
-                        if (j >= 10)
-                            cout << "C" << j;
-                        else
-                            cout << "C" << j << " ";
-                    }
-                    else
-                    {
-                        SetConsoleTextAttribute(consolehwnd, FOREGROUND_RED);
-                        if (j >= 10)
-                            cout << "C" << j;
-                        else
-                            cout << "C" << j << " ";
-                    }
+                cout << "C" << current.getseat_nr();
+                if (current.getseat_nr() < 10)  cout << " ";
             }
             SetConsoleTextAttribute(consolehwnd, 7);
             cout << "|\n";
@@ -1753,6 +1788,8 @@ Event::Event(const Event& e) : Location(e)
     this->data = e.data;
     this->timp = e.timp;
     this->category = e.category;
+    for (int i = 0; i < e.listaPreturi.size(); i++)
+        this->listaPreturi.push_back(e.listaPreturi[i]);
 }
 void Event::modify(vector <Event>& listaEvent)
 {
@@ -1808,6 +1845,8 @@ Event& Event::operator =(const Event& e)
         this->data = e.data;
         this->timp = e.timp;
         this->category = e.category;
+        for (int i = 0; i < e.listaPreturi.size(); i++)
+            this->listaPreturi.push_back(e.listaPreturi[i]);
     }
     return *this;
 }
@@ -1841,7 +1880,7 @@ public:
     int getpayment_id() { return this->payment_id; }
     float getamount() const { return this->amount; }
     bool getmetoda() { return this->metoda; }
-    vector <TicketRezervate> getlista() { return this->lista; }
+    vector <TicketRezervate>& getlista() { return this->lista; }
 
     void settip_plata(char tip_plata)
     {
@@ -1881,7 +1920,7 @@ public:
     Payment(const Payment& p);
     void modify(vector <Payment>& listaPayment);
     void deleting(vector <Payment>& listaPayment);
-    friend TicketRezervate deleting_p(Payment& p);
+    friend TicketRezervate deleting_p(vector <TicketRezervate>& listaTicket);
     void filtru(vector <Payment>& listaPayment);
     Payment& operator =(const Payment& p);
 
@@ -1992,7 +2031,7 @@ public:
 int Payment::id_contor = 0;
 Payment::Payment() : payment_id(id_contor)
 {
-    this->tip_plata = ' ';
+    this->tip_plata = 'f';
     this->amount = 0;
     this->metoda = 0;
 }
@@ -2007,6 +2046,8 @@ Payment::Payment(const Payment& p) : payment_id(id_contor++)
     this->tip_plata = p.tip_plata;
     this->amount = p.amount;
     this->metoda = p.metoda;
+    for (int i = 0; i < p.lista.size(); i++)
+        this->lista.push_back(p.lista[i]);
 }
 void Payment::modify(vector <Payment>& listaPayment)
 {
@@ -2052,7 +2093,7 @@ TicketRezervate deleting_p(vector <TicketRezervate>& listaTicket)
         try
         {
             string v;
-            cout << "Care este numele evennimentului? ";
+            cout << "Care este numele evenimentului? ";
             cin >> v;
             if (cin.fail())
             {
@@ -2076,7 +2117,7 @@ TicketRezervate deleting_p(vector <TicketRezervate>& listaTicket)
             string v;
             cout << "Care este zona ? ";
             cin >> v;
-            if (cin.fail() || v != "A" || v != "B" || v != "C" || v != "D")
+            if (cin.fail() || (v != "A" && v != "B" && v != "C" && v != "D"))
             {
                 throw runtime_error("Zona nu este corect. Introduceti o litera dintre A, B, C, D.\n");
             }
@@ -2098,9 +2139,9 @@ TicketRezervate deleting_p(vector <TicketRezervate>& listaTicket)
             int v;
             cout << "Care este locul biletului pe care vrei sa il stergi? ";
             cin >> v;
-            if (cin.fail() || v > 0)
+            if (cin.fail() || v <= 0)
             {
-                throw runtime_error("Locul biletulu nu este corect. Introduceti un numar intreg pozitiv.\n");
+                throw runtime_error("Locul biletului nu este corect. Introduceti un numar intreg pozitiv.\n");
             }
             nr = v;
             break;
@@ -2148,6 +2189,8 @@ Payment& Payment::operator =(const Payment& p)
         this->tip_plata = p.tip_plata;
         this->amount = p.amount;
         this->metoda = p.metoda;
+        for (int i = 0; i < p.lista.size(); i++)
+            this->lista.push_back(p.lista[i]);
     }
     return *this;
 }
@@ -2165,300 +2208,175 @@ ifstream& operator >> (ifstream& fin, Payment& p)
 }
 
 
-int main()
+class MeniuInteractiv
 {
-    bool stop = false;
-    int i;
-    vector <Sala> listaSala;
-    vector <Location> listaLocation;
-    vector <Event> listaEvent;
-    vector <Ticket> listaTicket;
-    vector <Payment> listaPayment;
-    vector < TicketRezervate> listaTicketRezervate;
+private:
+    static MeniuInteractiv* obiect;
+    string data;
 
-    Event d;
-    for (int i = 0; i < 3; i++)
+    MeniuInteractiv()
     {
-        fin >> d;
-        listaEvent.push_back(d);
-        listaLocation.push_back(d);
-        listaSala.push_back(d);
+        data = "dd.mm.yyyy";
     }
-    
-    while (stop != true)
-    {
-        cout << "Apasa 1 daca vrei sa adaugi date" << endl;
-        cout << "Apasa 2 daca vrei sa vezi lista de valori" << endl;
-        cout << "Apasa 3 daca vrei sa modifici o valoare existenta" << endl;
-        cout << "Apasa 4 daca vrei sa stergi o valoare existenta" << endl;
-        cout << "Apasa 5 daca vrei sa filtrezi" << endl;
-        cout << "Apasa 6 pentru a realiza o comanda" << endl;
-        cout << "Apasa 7 pentru stop" << endl;
-        cout << "Introdu o comanda: " << endl;
-        int comanda1, comanda2, comanda3;
-        cin >> comanda1;
-        switch (comanda1)
-        {
-        case 1:
-        {
-            cout << "Apasa 1 daca vrei sa adaugi date in clasa event" << endl;
-            cout << "Apasa 2 daca vrei sa adaugi date in clasa ticket" << endl;
-            cout << "Apasa 3 daca vrei sa adaugi date in clasa sala" << endl;
-            cout << "Apasa 4 daca vrei sa adaugi date in clasa payment" << endl;
-            cout << "Apasa 5 daca vrei sa adaugi date in clasa location" << endl;
-            cout << "Apasa 6 daca vrei sa adaugi date in clasa tickete rezervate" << endl;
-            cin >> comanda2;
-            switch (comanda2)
-            {
-            case 1:
-            {
-                Event a;
-                cin >> a;
-                listaEvent.push_back(a);
-                listaLocation.push_back(a);
-                break;
-            }
-            case 2:
-            {
-                Ticket a;
-                cin >> a;
-                listaTicket.push_back(a);
-                break;
-            }
-            case 3:
-            {
-                Sala a;
-                cin >> a;
-                listaSala.push_back(a);
-                break;
-            }
-            case 4:
-            {
-                Payment a;
-                cin >> a;
-                listaPayment.push_back(a);
-                break;
-            }
-            case 5:
-            {
-                Location a;
-                cin >> a;
-                listaLocation.push_back(a);
-                break;
-            }
-            case 6:
-            {
-                TicketRezervate a;
-                cin >> a;
-                listaTicketRezervate.push_back(a);
-                break;
-            }
-            default:
-            {
-                cout << "Comanda incorecta" << endl;
-                break;
-            }
-            }
-            break;
-        }
-        case 2:
-        {
-            cout << "Apasa 1 daca vrei sa vezi lista de valori pentru clasa event" << endl;
-            cout << "Apasa 2 daca vrei sa vezi lista de valori pentru clasa ticket" << endl;
-            cout << "Apasa 3 daca vrei sa vezi lista de valori pentru clasa sala" << endl;
-            cout << "Apasa 4 daca vrei sa vezi lista de valori pentru clasa payment" << endl;
-            cout << "Apasa 5 daca vrei sa vezi lista de valori pentru clasa location" << endl;
-            cout << "Apasa 6 daca vrei sa vezi lista de valori pentru clasa tickete rezervate" << endl;
-            cin >> comanda3;
-            switch (comanda3)
-            {
-            case 1:
-            {
-                for (int i = 0; i < listaEvent.size(); i++)
-                {
-                    cout << listaEvent[i];
-                    cout << endl;
-                }
-                break;
-            }
-            case 2:
-            {
-                for (int i = 0; i < listaTicket.size(); i++)
-                {
-                    cout << listaTicket[i];
-                    cout << endl;
-                }
-                break;
-            }
-            case 3:
-            {
-                for (int i = 0; i < listaSala.size(); i++)
-                {
-                    cout << listaSala[i];
-                    cout << endl;
-                }
-                break;
-            }
-            case 4:
-            {
-                for (int i = 0; i < listaPayment.size(); i++)
-                {
-                    cout << listaPayment[i];
-                    cout << endl;
-                }
-                break;
-            }
-            case 5:
-            {
-                for (int i = 0; i < listaLocation.size(); i++)
-                {
-                    cout << listaLocation[i];
-                    cout << endl;
-                }
-                break;
-            }
-            case 6:
-            {
-                for (int i = 0; i < listaTicketRezervate.size(); i++)
-                {
-                    cout << listaTicketRezervate[i];
-                    cout << endl;
-                }
-                break;
-            }
-            default:
-            {
-                cout << "Comanda incorecta" << endl;
-                break;
-            }
-            }
-            break;
-        }
-        case 3:
-        {
-            cout << "Apasa 1 daca vrei sa modifici date in clasa event" << endl;
-            cout << "Apasa 2 daca vrei sa modifici date in clasa ticket" << endl;
-            cout << "Apasa 3 daca vrei sa modifici date in clasa payment" << endl;
-            cin >> comanda2;
-            switch (comanda2)
-            {
 
+public:
+    static MeniuInteractiv* getInstance()
+    {
+        if (!obiect)
+            obiect = new MeniuInteractiv;
+        return obiect;
+    }
+
+    string getData() { return this->data; }
+    void setData(string a)
+    {
+        if (a != "")
+            this->data = a;
+    }
+
+    void meniu()
+    {
+        bool stop = false;
+        int i;
+        vector <Sala> listaSala;
+        vector <Location> listaLocation;
+        vector <Event> listaEvent;
+        vector <Ticket> listaTicket;
+        vector <Payment> listaPayment;
+        vector < TicketRezervate> listaTicketRezervate;
+
+        Event d;
+        
+        for (int i = 0; i < 3; i++)
+        {
+            fin >> d;
+            Location* l;
+            Sala* s;
+            listaEvent.push_back(d);
+            try
+            {
+                l = dynamic_cast<Location*>(&d);
+                if (l == NULL)
+                    throw eroareamea;
+                listaLocation.push_back(*l);
+            }
+            catch (const EroareaMea& eroareamea)
+            {
+                cout << "\n Vectorul location e null.\n";
+            }
+            catch (const std::bad_cast& e)
+            {
+                cout << "\n ati gresit dynamic_cast pt location";
+                cout << e.what();
+            }
+
+            try
+            {
+                s = dynamic_cast<Sala*>(&d);
+                if (s == NULL)
+                    throw eroareamea;
+                listaSala.push_back(*s);
+            }
+            catch (const EroareaMea& eroareamea)
+            {
+                cout << "\n Vectorul sala e null.\n";
+            }
+            catch (const std::bad_cast& e)
+            {
+                cout << "\n ati gresit dynamic_cast pt sala";
+                cout << e.what();
+            }
+
+
+            /*
+            listaLocation.push_back(d);
+            listaSala.push_back(d);
+            */
+        }
+        while (stop != true)
+        {
+            cout << "Apasa 1 daca vrei sa adaugi date" << endl;
+            cout << "Apasa 2 daca vrei sa vezi lista de valori" << endl;
+            cout << "Apasa 3 daca vrei sa modifici o valoare existenta" << endl;
+            cout << "Apasa 4 daca vrei sa stergi o valoare existenta" << endl;
+            cout << "Apasa 5 daca vrei sa filtrezi" << endl;
+            cout << "Apasa 6 pentru a realiza o comanda" << endl;
+            cout << "Apasa 7 pentru stop" << endl;
+            cout << "Introdu o comanda: " << endl;
+            int comanda1, comanda2, comanda3;
+            cin >> comanda1;
+            switch (comanda1)
+            {
             case 1:
             {
-                listaEvent[0].modify(listaEvent);
+                cout << "Apasa 1 daca vrei sa adaugi date in clasa event" << endl;
+                cout << "Apasa 2 daca vrei sa adaugi date in clasa ticket" << endl;
+                cout << "Apasa 3 daca vrei sa adaugi date in clasa sala" << endl;
+                cout << "Apasa 4 daca vrei sa adaugi date in clasa payment" << endl;
+                cout << "Apasa 5 daca vrei sa adaugi date in clasa location" << endl;
+                cout << "Apasa 6 daca vrei sa adaugi date in clasa tickete rezervate" << endl;
+                cin >> comanda2;
+                switch (comanda2)
+                {
+                case 1:
+                {
+                    Event a;
+                    cin >> a;
+                    listaEvent.push_back(a);
+                    break;
+                }
+                case 2:
+                {
+                    Ticket a;
+                    cin >> a;
+                    listaTicket.push_back(a);
+                    break;
+                }
+                case 3:
+                {
+                    Sala a;
+                    cin >> a;
+                    listaSala.push_back(a);
+                    break;
+                }
+                case 4:
+                {
+                    Payment a;
+                    cin >> a;
+                    listaPayment.push_back(a);
+                    break;
+                }
+                case 5:
+                {
+                    Location a;
+                    cin >> a;
+                    listaLocation.push_back(a);
+                    break;
+                }
+                case 6:
+                {
+                    TicketRezervate a;
+                    cin >> a;
+                    listaTicketRezervate.push_back(a);
+                    break;
+                }
+                default:
+                {
+                    cout << "Comanda incorecta" << endl;
+                    break;
+                }
+                }
                 break;
             }
             case 2:
             {
-                listaTicket[0].modify(listaTicket);
-                break;
-            }
-            case 3:
-            {
-                listaPayment[0].modify(listaPayment);
-                break;
-            }
-            default:
-            {
-                cout << "Comanda incorecta" << endl;
-                break;
-            }
-            }
-            break;
-        }
-        case 4:
-        {
-            cout << "Apasa 1 daca vrei sa stergi date din clasa event" << endl;
-            cout << "Apasa 2 daca vrei sa stergi date din clasa ticket" << endl;
-            cout << "Apasa 3 daca vrei sa stergi date din clasa payment" << endl;
-            cout << "Apasa 4 daca vrei sa stergi date in clasa location" << endl;
-            cout << "Apasa 5 daca vrei sa stergi date in clasa ticket rezervate" << endl;
-            cin >> comanda2;
-            switch (comanda2)
-            {
-            case 1:
-            {
-                listaEvent[0].deleting(listaEvent);
-                break;
-            }
-            case 2:
-            {
-                listaTicket[0].deleting(listaTicket);
-                break;
-            }
-            case 3:
-            {
-                listaPayment[0].deleting(listaPayment);
-                break;
-            }
-            case 4:
-            {
-                listaLocation[0].deleting(listaLocation);
-                break;
-            }
-            case 5:
-            {
-                listaTicketRezervate[0].deleting(listaTicketRezervate);
-                break;
-            }
-            default:
-            {
-                cout << "Comanda incorecta" << endl;
-                break;
-            }
-            }
-            break;
-        }
-        case 5:
-        {
-            cout << "Apasa 1 daca vrei sa filtrezi dupa id-ul unui eveniment" << endl;
-            cout << "Apasa 2 daca vrei sa filtrezi dupa pretul unui bilet" << endl;
-            cout << "Apasa 3 daca vrei sa filtrezi dupa pretul unei achizitii" << endl;
-            cout << "Apasa 4 daca vrei sa filtrezi dupa id-ul unei locatii" << endl;
-            int comanda4;
-            cin >> comanda4;
-            switch (comanda4)
-            {
-            case 1:
-            {
-                listaEvent[0].filtru(listaEvent);
-                break;
-            }
-            case 2:
-            {
-                listaTicket[0].filtru(listaTicket);
-                break;
-            }
-            case 3:
-            {
-                listaPayment[0].filtru(listaPayment);
-                break;
-            }
-            case 4:
-            {
-                listaLocation[0].filtru(listaLocation);
-                break;
-            }
-            default:
-            {
-                cout << "Comanda incorecta" << endl;
-                break;
-            }
-            }
-            break;
-        }
-        case 6:
-        {
-            vector <TicketRezervate> l;
-            int ok = 0;
-            while (ok == 0)
-            {
-                cout << "Apasa 1 pentru a adauga un ticket\n";
-                cout << "Apasa 2 pentru a sterge un tcket\n";
-                cout << "Apasa 3 pentru a incheia tranzactia\n";
-                int comanda3;
+                cout << "Apasa 1 daca vrei sa vezi lista de valori pentru clasa event" << endl;
+                cout << "Apasa 2 daca vrei sa vezi lista de valori pentru clasa ticket" << endl;
+                cout << "Apasa 3 daca vrei sa vezi lista de valori pentru clasa sala" << endl;
+                cout << "Apasa 4 daca vrei sa vezi lista de valori pentru clasa payment" << endl;
+                cout << "Apasa 5 daca vrei sa vezi lista de valori pentru clasa location" << endl;
+                cout << "Apasa 6 daca vrei sa vezi lista de valori pentru clasa tickete rezervate" << endl;
                 cin >> comanda3;
-                Payment p;
                 switch (comanda3)
                 {
                 case 1:
@@ -2466,158 +2384,389 @@ int main()
                     for (int i = 0; i < listaEvent.size(); i++)
                     {
                         cout << listaEvent[i];
-                        listaEvent[i].locuri_libere();
                         cout << endl;
-                    }
-                    int  id, loc;
-                    string zona;
-                    try
-                    {
-                        cout << "Care este id-ul evnimentului la care doriti sa cumparati bilete? ";
-                        int aux;
-                        cin >> aux;
-                        if (cin.fail())
-                        {
-                            throw runtime_error("Id-ul nu este corect. Introduceti un intreg pozitiv.\n");
-                        }
-                        id = aux;
-                        break;
-                    }
-                    catch (const runtime_error& a)
-                    {
-                        cout << a.what();
-                    }
-
-                    try
-                    {
-                        cout << "Care este zona biletului pe care doriti sa il cumparati? ";
-                        string aux;
-                        cin >> aux;
-                        if (cin.fail() || aux!="A" || aux!="B" || aux!="C" || aux!="D")
-                        {
-                            throw runtime_error("Zona nu este corect. Introduceti o litera dintre A, B, C, D.\n");
-                        }
-                        zona = aux;
-                        break;
-                    }
-                    catch (const runtime_error& a)
-                    {
-                        cout << a.what();
-                    }
-
-                    try
-                    {
-                        cout << "Care este locul biletului pe care doriti sa il cumparati? ";
-                        int aux;
-                        cin >> aux;
-                        if (cin.fail() || aux>0)
-                        {
-                            throw runtime_error("Locul nu este corect. Introduceti un intreg pozitiv.\n");
-                        }
-                        loc = aux;
-                        break;
-                    }
-                    catch (const runtime_error& a)
-                    {
-                        cout << a.what();
-                    }
-                    int ci;
-                    for (int i = 0; i < listaEvent.size(); i++)
-                        if (listaEvent[i].getevent_id() == id)
-                        {
-                            ci = i;
-                            break;
-                        }
-                    try
-                    {
-                        if (listaEvent[listaEvent.begin() + ci].getstatus() != 'a')
-                            throw eroareamea;
-                        TicketRezervate t(listaEvent[listaEvent.begin() + ci].getname(), zona, loc, listaEvent[listaEvent.begin() + ci].getprice());
-                        p += t;
-                        l.push_back(t);
-                        listaEvent[listaEvent.begin() + ci].setstatus(zona, loc, 'r');
-                    }
-                    catch (const EroareaMea a)
-                    {
-                        cout << "Locul nu este liber.";
                     }
                     break;
                 }
                 case 2:
                 {
-                    TicketRezervate t, aux;
-                    t = p.deleting_p(p.getlista()); // ?????
-                    l[0].deleting_p(l, t);
+                    for (int i = 0; i < listaTicket.size(); i++)
+                    {
+                        cout << listaTicket[i];
+                        cout << endl;
+                    }
                     break;
                 }
                 case 3:
                 {
-                    bool x;
-                    while (true)
+                    for (int i = 0; i < listaSala.size(); i++)
                     {
-                        try
-                        {
-                            cout << "Doriti sa platiti biletele sau doar sa le rezervati?( introduceti 0 pentru a plati sau 1 pentru a rezerva) ";
-                            cin >> x;
-                            if (cin.fail())
-                                throw runtime_error("Nu este o optiune valida.");
-                            break;
-                        }
-                        catch (runtime_error& a)
-                        {
-                            cout << a.what();
-                        }
-                        cin.clear();
-                        cin.ignore();
+                        cout << listaSala[i];
+                        cout << endl;
                     }
-                    if (x == 0)
+                    break;
+                }
+                case 4:
+                {
+                    for (int i = 0; i < listaPayment.size(); i++)
                     {
-                        int ci;
-                        for (int i = 0; i < l.size(); i++)
-                        {
-                            for (int j = 0; j < listaEvent.size(); i++)
-                                if (listaEvent[j].getname() == l[i].getnume_event())
-                                {
-                                    ci = i;
-                                    break;
-                                }
-                            listaEvent[listaEvent.begin() + ci].setstatus(l[i].getzona(), l[i].getseat(), 's');
-                        }
+                        cout << listaPayment[i];
+                        cout << endl;
                     }
-                    ok = 1;
+                    break;
+                }
+                case 5:
+                {
+                    for (int i = 0; i < listaLocation.size(); i++)
+                    {
+                        cout << listaLocation[i];
+                        cout << endl;
+                    }
+                    break;
+                }
+                case 6:
+                {
+                    for (int i = 0; i < listaTicketRezervate.size(); i++)
+                    {
+                        cout << listaTicketRezervate[i];
+                        cout << endl;
+                    }
                     break;
                 }
                 default:
                 {
-                    cout << "Comanda incorecta.\n";
+                    cout << "Comanda incorecta" << endl;
                     break;
                 }
-
-
-
-
-
-
                 }
+                break;
+            }
+            case 3:
+            {
+                cout << "Apasa 1 daca vrei sa modifici date in clasa event" << endl;
+                cout << "Apasa 2 daca vrei sa modifici date in clasa ticket" << endl;
+                cout << "Apasa 3 daca vrei sa modifici date in clasa payment" << endl;
+                cin >> comanda2;
+                switch (comanda2)
+                {
+
+                case 1:
+                {
+                    listaEvent[0].modify(listaEvent);
+                    break;
+                }
+                case 2:
+                {
+                    listaTicket[0].modify(listaTicket);
+                    break;
+                }
+                case 3:
+                {
+                    listaPayment[0].modify(listaPayment);
+                    break;
+                }
+                default:
+                {
+                    cout << "Comanda incorecta" << endl;
+                    break;
+                }
+                }
+                break;
+            }
+            case 4:
+            {
+                cout << "Apasa 1 daca vrei sa stergi date din clasa event" << endl;
+                cout << "Apasa 2 daca vrei sa stergi date din clasa ticket" << endl;
+                cout << "Apasa 3 daca vrei sa stergi date din clasa payment" << endl;
+                cout << "Apasa 4 daca vrei sa stergi date in clasa location" << endl;
+                cout << "Apasa 5 daca vrei sa stergi date in clasa ticket rezervate" << endl;
+                cin >> comanda2;
+                switch (comanda2)
+                {
+                case 1:
+                {
+                    listaEvent[0].deleting(listaEvent);
+                    break;
+                }
+                case 2:
+                {
+                    listaTicket[0].deleting(listaTicket);
+                    break;
+                }
+                case 3:
+                {
+                    listaPayment[0].deleting(listaPayment);
+                    break;
+                }
+                case 4:
+                {
+                    listaLocation[0].deleting(listaLocation);
+                    break;
+                }
+                case 5:
+                {
+                    listaTicketRezervate[0].deleting(listaTicketRezervate);
+                    break;
+                }
+                default:
+                {
+                    cout << "Comanda incorecta" << endl;
+                    break;
+                }
+                }
+                break;
+            }
+            case 5:
+            {
+                cout << "Apasa 1 daca vrei sa filtrezi dupa id-ul unui eveniment" << endl;
+                cout << "Apasa 2 daca vrei sa filtrezi dupa pretul unui bilet" << endl;
+                cout << "Apasa 3 daca vrei sa filtrezi dupa pretul unei achizitii" << endl;
+                cout << "Apasa 4 daca vrei sa filtrezi dupa id-ul unei locatii" << endl;
+                int comanda4;
+                cin >> comanda4;
+                switch (comanda4)
+                {
+                case 1:
+                {
+                    listaEvent[0].filtru(listaEvent);
+                    break;
+                }
+                case 2:
+                {
+                    listaTicket[0].filtru(listaTicket);
+                    break;
+                }
+                case 3:
+                {
+                    listaPayment[0].filtru(listaPayment);
+                    break;
+                }
+                case 4:
+                {
+                    listaLocation[0].filtru(listaLocation);
+                    break;
+                }
+                default:
+                {
+                    cout << "Comanda incorecta" << endl;
+                    break;
+                }
+                }
+                break;
+            }
+            case 6:
+            {
+                vector <TicketRezervate> l;
+                Payment p;
+                int ok = 0;
+                while (ok == 0)
+                {
+                    cout << "Apasa 1 pentru a adauga un ticket\n";
+                    cout << "Apasa 2 pentru a sterge un ticket\n";
+                    cout << "Apasa 3 pentru a vedea ticketele adaugate la comanda\n";
+                    cout << "Apasa 4 pentru a incheia tranzactia\n";
+                    int comanda3;
+                    cin >> comanda3;
+                    switch (comanda3)
+                    {
+                    case 1:
+                    {
+                        for (int i = 0; i < listaEvent.size(); i++)
+                        {
+                            cout << listaEvent[i];
+                            listaEvent[i].locuri_libere();
+                            cout << endl;
+                        }
+                        int  id, loc;
+                        string zona;
+                        while (true)
+                        {
+                            try
+                            {
+                            
+                                cout << "Care este id-ul evnimentului la care doriti sa cumparati bilete? ";
+                                int aux;
+                                cin >> aux;
+                                if (cin.fail())
+                                {
+                                    throw runtime_error("Id-ul nu este corect. Introduceti un intreg pozitiv.\n");
+                                }
+                                id = aux;
+                                break;
+                            }
+                            catch (const runtime_error& a)
+                            {
+                                cout << a.what();
+                            }
+                            cin.clear();
+                            cin.ignore();
+                        }
+                        while (true)
+                        {
+                            try
+                            {
+                                cout << "Care este zona biletului pe care doriti sa il cumparati? ";
+                                string aux;
+                                cin >> aux;
+                                if (cin.fail() || (aux != "A" && aux != "B" && aux != "C" && aux != "D"))
+                                {
+                                    throw runtime_error("Zona nu este corect. Introduceti o litera dintre A, B, C, D.\n");
+                                }
+                                zona = aux;
+                                break;
+                            }
+                            catch (const runtime_error& a)
+                            {
+                                cout << a.what();
+                            }
+                            cin.clear();
+                            cin.ignore();
+                        }
+                        while (true)
+                        {
+                            try
+                            {
+                                cout << "Care este locul biletului pe care doriti sa il cumparati? ";
+                                int aux;
+                                cin >> aux;
+                                if (cin.fail() || aux <= 0)
+                                {
+                                    throw runtime_error("Locul nu este corect. Introduceti un intreg pozitiv.\n");
+                                }
+                                loc = aux;
+                                break;
+                            }
+                            catch (const runtime_error& a)
+                            {
+                                cout << a.what();
+                            }
+                            cin.clear();
+                            cin.ignore();
+                        }
+                        int ci;
+                        for (int i = 0; i < listaEvent.size(); i++)
+                            if (listaEvent[i].getevent_id() == id)
+                            {
+                                ci = i;
+                                break;
+                            }
+                        try
+                        {
+                            if (listaEvent[ci].getstatus(zona, loc) != 'a')
+                                throw eroareamea;
+                            TicketRezervate t(listaEvent[ci].getname(), zona, loc, listaEvent[ci].getprice(zona, loc));
+                            p += t;
+                            l.push_back(t);
+                            listaEvent[ci].setstatus(zona, loc, 'r');
+                        }
+                        catch (const EroareaMea a)
+                        {
+                            cout << "Locul nu este liber.\n";
+                        }
+                        
+                        break;
+                    }
+                    case 2:
+                    {
+                        TicketRezervate t, aux;
+                        t = deleting_p(p.getlista());
+                        if(t.getprice()!=-1)
+                            l[0].deleting_p(l, t);
+                        break;
+                    }
+                    case 3:
+                    {
+                        for (int i = 0; i < l.size(); i++)
+                        {
+                            cout << l[i];
+                        }
+                        break;
+                    }
+                    case 4:
+                    {
+                        bool x;
+                        while (true)
+                        {
+                            try
+                            {
+                                cout << "Doriti sa platiti biletele sau doar sa le rezervati?( introduceti 0 pentru a plati sau 1 pentru a rezerva) ";
+                                cin >> x;
+                                if (cin.fail())
+                                    throw runtime_error("Nu este o optiune valida.");
+                                break;
+                            }
+                            catch (runtime_error& a)
+                            {
+                                cout << a.what();
+                            }
+                            cin.clear();
+                            cin.ignore();
+                        }
+                        if (x == 0)
+                        {
+                            int ci;
+                            for (int i = 0; i < l.size(); i++)
+                            {
+                                for (int j = 0; j < listaEvent.size(); j++)
+                                    if (listaEvent[j].getname() == l[i].getnume_event())
+                                    {
+                                        ci = j;
+                                        break;
+                                    }
+                                listaEvent[ci].setstatus(l[i].getzona(), l[i].getseat(), 's');
+                            }
+                            cout << "Biletele au fost platite.\n";
+                            p.settip_plata('o');
+                            p.setmetoda(0);
+                        }
+                        else
+                        {
+                            cout << "Biletele sunt rezervate. Aventi timp de 10 zile lucratoare sa finalaziti tranzactia.\n";
+                        }
+                        ok = 1;
+                        listaPayment.push_back(p);
+                        break;
+                    }
+                    default:
+                    {
+                        cout << "Comanda incorecta.\n";
+                        break;
+                    }
+                    }
+                }
+                break;
+            }
+            case 7:
+            {
+                stop = true;
+                break;
+            }
+            default:
+            {
+                cout << "Comanda incorecta" << endl;
+                break;
+            }
             }
         }
-        /*
-
-            
-
-            break;
-        }*/
-        case 7:
+    }
+    ~MeniuInteractiv()
+    {
+        if (!this->obiect)
         {
-            stop = true;
-            break;
-        }
-        default:
-        {
-            cout << "Comanda incorecta" << endl;
-            break;
-        }
+            delete[] this->obiect;
+            this->obiect = NULL;
         }
     }
+};
+MeniuInteractiv* MeniuInteractiv::obiect = 0;
+
+
+int main()
+{
+    
+    MeniuInteractiv* meniulMeu = meniulMeu->getInstance();
+    meniulMeu->setData("10.01.2024");
+    meniulMeu->meniu();
+    
     return 0;
 }
