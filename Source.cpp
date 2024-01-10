@@ -45,7 +45,6 @@ void functieExceptii(int a)
     if (a == 5) throw 5; //pt bool
 }
 
-
 class Ticket : public IOInterface
 {
     string zona;
